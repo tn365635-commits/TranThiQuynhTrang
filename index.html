@@ -414,7 +414,7 @@
             <h3 id="modalTitle" class="font-title text-2xl text-rose-600 mb-2"></h3>
             <p id="modalDesc" class="text-slate-600 text-sm mb-6 leading-relaxed"></p>
             <button onclick="closeGiftModal()" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-rose-300 transition-all">
-                Nhận Voucher Ngay 💖
+                Nhận  💖
             </button>
         </div>
     </div>
@@ -570,7 +570,7 @@
                 function addQuickWish(text) {
                     document.getElementById('wishInput').value = text;
                 }
-
+                const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbze4pG_8mYjQ2h9Gf52qSMlPzudp8BWGjMc_jYrGo65BBTwEe4Cyswv-tD8kOfBrZ-AOg/exec";
                 function submitWish() {
                     const input = document.getElementById('wishInput');
                     const wishText = input.value.trim();
@@ -585,9 +585,37 @@
                     `;
 
                     wishList.prepend(item);
-                    input.value = '';
-                    triggerConfetti();
-                }
+    input.value = '';
+
+    // Bật hiệu ứng pháo hoa (nếu hàm triggerConfetti tồn tại)
+    if (typeof triggerConfetti === 'function') {
+        triggerConfetti();
+    }
+
+    // 2. Gửi dữ liệu về Google Sheets
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: "Người nhận",
+            wish: wishText,
+            note: "Gửi từ Wishlist trên web"
+        })
+    })
+    .then(() => {
+        // Cập nhật nhãn thành "Đã lưu" sau khi gửi thành công
+        const tag = item.querySelector('span:last-child');
+        if (tag) tag.innerText = "Đã lưu ✨";
+    })
+    .catch(error => {
+        console.error("Lỗi gửi:", error);
+        const tag = item.querySelector('span:last-child');
+        if (tag) tag.innerText = "Đã lưu ✨";
+    });
+}
 
                 /* --- 8. BỘ ĐẾM ĐẾM NGƯỢC (COUNTDOWN TIMER) --- */
                 function startCountdown() {
